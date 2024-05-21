@@ -1,35 +1,45 @@
+import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Component } from '@angular/core';
 
 @Component({
   selector: 'app-file-upload',
   standalone: true,
-  imports: [],
+  imports: [CommonModule],
   templateUrl: './file-upload.component.html',
   styleUrl: './file-upload.component.css'
 })
 export class FileUploadComponent {
-  selectedFiles: FileList | null = null;
+  selectedFiles: File[] = [];
 
   constructor(private http: HttpClient) {}
 
   onFileSelected(event: Event) {
-    this.selectedFiles = (event.target as HTMLInputElement).files;
+    const files = (event.target as HTMLInputElement).files;
+    if (files) {
+      for (let i = 0; i < files.length; i++) {
+        this.selectedFiles.push(files[i]);
+      }
+    }
+  }
+
+  removeFile(index: number) {
+    this.selectedFiles.splice(index, 1);
   }
 
   onUpload() {
-    if (this.selectedFiles) {
+    if (this.selectedFiles.length > 0) {
       const formData = new FormData();
-      for (let i = 0; i < this.selectedFiles.length; i++) {
-        formData.append('files', this.selectedFiles[i]);
-      }
+      this.selectedFiles.forEach(file => {
+        formData.append('files', file);
+      });
 
-      this.http.post('/api/compress', formData, { responseType: 'blob' }).subscribe(
+      this.http.post('http://localhost:3000/api/compress', formData, { responseType: 'blob' }).subscribe(
         (response: Blob) => {
           const url = window.URL.createObjectURL(response);
           const a = document.createElement('a');
           a.href = url;
-          a.download = 'compressed_files.zip';
+          a.download = 'merged.pdf';
           a.click();
         },
         error => {

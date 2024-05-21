@@ -1,5 +1,14 @@
-<div>
-  <h2>Upload PDF Files</h2>
+<div class="container">
+  <h2>Upload Files</h2>
   <input type="file" (change)="onFileSelected($event)" multiple>
-  <button (click)="onUpload()">Upload</button>
+  <div *ngIf="selectedFiles.length > 0">
+    <h3>Selected Files:</h3>
+    <ul>
+      <li *ngFor="let file of selectedFiles; let i = index">
+        {{ file.name }} ({{ file.size }} bytes)
+        <button (click)="removeFile(i)">Remove</button>
+      </li>
+    </ul>
+    <button (click)="onUpload()">Upload</button>
+  </div>
 </div>
